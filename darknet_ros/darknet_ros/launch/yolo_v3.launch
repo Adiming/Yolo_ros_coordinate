@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+  
+  <!-- Use YOLOv3 and its original weight (coco dataset) -->
+  <!-- the argument value for color data stream. The topic name is modified in darknet_ros/config/ros.yaml -->
+  <!-- <arg name="network_param_file"         default="$(find darknet_ros)/config/yolov3.yaml"/>
+  <arg name="image" default="camera/rgb/image_raw" />   -->
+  
+
+  <!-- Use YOLOv3 and the custom weight (custom dataset) -->
+  <arg name="network_param_file"         default="$(find darknet_ros)/config/yolov3_custom.yaml"/>
+  <arg name="image" default="camera/rgb/image_raw" />
+
+  <!-- Launch the D415 camera -->
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+  <!-- align depth data to color data -->
+    <arg name="align_depth" value="true" />
+
+    <arg name="color_width" value="640" />
+    <!-- <arg name="color_hight" value="480" /> -->
+
+    <arg name="depth_width" value="640" />
+    <!-- <arg name="depth_hight" value="480" /> -->
+  </include>
+  
+  <!-- Include main launch file -->
+  <include file="$(find darknet_ros)/launch/darknet_ros.launch">
+    <arg name="network_param_file"    value="$(arg network_param_file)"/>
+    <arg name="image" value="$(arg image)" />
+  </include>
+
+  <!-- Publish the coordinate data of target -->                     
+  <!-- pass parameter from the launch file, like resolotion and focal length -->
+   <node pkg="coordinate_target" type="coordinate"   name="Targetcoordinate" />
+
+</launch>
